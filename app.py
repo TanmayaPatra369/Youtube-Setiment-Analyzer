@@ -56,7 +56,7 @@ with st.sidebar:
         # ML concept illustration
         response = requests.get("https://pixabay.com/get/gbcc37d869de238846409d6c04f59d7c849852171ddf02b2791276bfbd3a777adc069e85c73c18ca58cd9bd525f4cfc5d2946ac40cca71eae5d5a0b73386dbc26_1280.jpg")
         img = Image.open(BytesIO(response.content))
-        st.image(img, caption="Machine Learning for Sentiment Analysis", use_column_width=True)
+        st.image(img, caption="Machine Learning for Sentiment Analysis", use_container_width=True)
     except Exception as e:
         st.warning("Could not load image")
 

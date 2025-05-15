@@ -5,15 +5,22 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
-# Download NLTK resources
+# Download NLTK resources - ensure all required resources are available
+for resource in ['punkt', 'stopwords', 'wordnet']:
+    try:
+        nltk.download(resource, quiet=True)
+    except Exception as e:
+        print(f"Error downloading NLTK resource {resource}: {e}")
+
+# Ensure tokenizer is properly loaded
 try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-    nltk.data.find('corpora/wordnet')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-    nltk.download('wordnet')
+    # Explicitly initialize the tokenizer
+    tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+except Exception as e:
+    print(f"Error loading tokenizer: {e}")
+    # Fallback to simple tokenization if NLTK resources fail
+    def simple_tokenize(text):
+        return text.split()
 
 def clean_text(text):
     """
@@ -52,10 +59,19 @@ def remove_stopwords(text):
     Returns:
     str: Text with stopwords removed
     """
-    stop_words = set(stopwords.words('english'))
-    tokens = word_tokenize(text)
-    filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
-    return ' '.join(filtered_tokens)
+    try:
+        stop_words = set(stopwords.words('english'))
+        # Use word_tokenize with try/except to handle possible errors
+        try:
+            tokens = word_tokenize(text)
+        except:
+            # Use fallback tokenizer if nltk tokenizer fails
+            tokens = simple_tokenize(text)
+        filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
+        return ' '.join(filtered_tokens)
+    except Exception as e:
+        print(f"Error removing stopwords: {e}")
+        return text
 
 def lemmatize_text(text):
     """
@@ -67,10 +83,19 @@ def lemmatize_text(text):
     Returns:
     str: Lemmatized text
     """
-    lemmatizer = WordNetLemmatizer()
-    tokens = word_tokenize(text)
-    lemmatized_tokens = [lemmatizer.lemmatize(word) for word in tokens]
-    return ' '.join(lemmatized_tokens)
+    try:
+        lemmatizer = WordNetLemmatizer()
+        # Use word_tokenize with try/except to handle possible errors
+        try:
+            tokens = word_tokenize(text)
+        except:
+            # Use fallback tokenizer if nltk tokenizer fails
+            tokens = simple_tokenize(text)
+        lemmatized_tokens = [lemmatizer.lemmatize(word) for word in tokens]
+        return ' '.join(lemmatized_tokens)
+    except Exception as e:
+        print(f"Error lemmatizing text: {e}")
+        return text
 
 def preprocess_comments(comments):
     """
@@ -84,17 +109,40 @@ def preprocess_comments(comments):
     """
     preprocessed_comments = []
     
-    for comment in comments:
-        if comment and isinstance(comment, str):
-            # Apply preprocessing steps
-            cleaned_comment = clean_text(comment)
-            no_stopwords = remove_stopwords(cleaned_comment)
-            lemmatized = lemmatize_text(no_stopwords)
-            
-            # Add to processed list
-            preprocessed_comments.append(lemmatized)
-        else:
-            # Handle empty or non-string comments
-            preprocessed_comments.append("")
+    try:
+        for comment in comments:
+            try:
+                if comment and isinstance(comment, str):
+                    # Apply preprocessing steps with error handling
+                    try:
+                        cleaned_comment = clean_text(comment)
+                    except Exception as e:
+                        print(f"Error cleaning text: {e}")
+                        cleaned_comment = comment
+                        
+                    try:
+                        no_stopwords = remove_stopwords(cleaned_comment)
+                    except Exception as e:
+                        print(f"Error removing stopwords: {e}")
+                        no_stopwords = cleaned_comment
+                        
+                    try:
+                        lemmatized = lemmatize_text(no_stopwords)
+                    except Exception as e:
+                        print(f"Error lemmatizing text: {e}")
+                        lemmatized = no_stopwords
+                    
+                    # Add to processed list
+                    preprocessed_comments.append(lemmatized)
+                else:
+                    # Handle empty or non-string comments
+                    preprocessed_comments.append("")
+            except Exception as e:
+                print(f"Error preprocessing comment: {e}")
+                preprocessed_comments.append("")
+    except Exception as e:
+        print(f"Error in preprocess_comments: {e}")
+        # Return original comments if preprocessing fails completely
+        return [str(comment) if comment is not None else "" for comment in comments]
     
     return preprocessed_comments
