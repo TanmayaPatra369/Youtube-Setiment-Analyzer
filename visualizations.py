@@ -113,40 +113,57 @@ def create_wordcloud(texts, color='white', width=400, height=200):
     height (int): Height of the image
     
     Returns:
-    BytesIO: Image of the word cloud
+    BytesIO or None: Image of the word cloud or None if texts is empty
     """
-    # Combine texts
-    if not texts:
-        return None
+    try:
+        # Combine texts
+        if not texts:
+            print("No texts provided for wordcloud")
+            return None
+            
+        # Filter out non-string or empty texts
+        valid_texts = [t for t in texts if isinstance(t, str) and t.strip()]
+        if not valid_texts:
+            print("No valid texts for wordcloud")
+            return None
+            
+        text = ' '.join(valid_texts)
         
-    text = ' '.join(texts)
-    
-    # Create WordCloud object
-    wc = WordCloud(
-        width=width, 
-        height=height, 
-        background_color='white',
-        colormap=color,
-        max_words=100,
-        contour_width=1,
-        contour_color='black'
-    )
-    
-    # Generate word cloud
-    wc.generate(text)
-    
-    # Plot the word cloud
-    plt.figure(figsize=(width/100, height/100), dpi=100)
-    plt.imshow(wc, interpolation='bilinear')
-    plt.axis('off')
-    
-    # Save to BytesIO
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
-    buf.seek(0)
-    plt.close()
-    
-    return buf
+        # Create WordCloud object
+        wc = WordCloud(
+            width=width, 
+            height=height, 
+            background_color='white',
+            colormap=color,
+            max_words=100,
+            contour_width=1,
+            contour_color='black'
+        )
+        
+        # Generate word cloud
+        wc.generate(text)
+        
+        # Plot the word cloud
+        plt.figure(figsize=(width/100, height/100), dpi=100)
+        plt.imshow(wc, interpolation='bilinear')
+        plt.axis('off')
+        
+        # Save to BytesIO
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
+        buf.seek(0)
+        plt.close()
+        
+        # Ensure non-None return value
+        if buf.getbuffer().nbytes > 0:
+            return buf
+        else:
+            print("Generated an empty wordcloud buffer")
+            return None
+            
+    except Exception as e:
+        print(f"Error creating wordcloud: {e}")
+        return None
 
 def create_sentiment_trend_chart(sentiment_data):
     """

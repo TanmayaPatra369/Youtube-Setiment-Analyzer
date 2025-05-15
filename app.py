@@ -206,7 +206,8 @@ with main_container:
                                     if positive_count > 0:
                                         positive_comments = comments_df[comments_df["Sentiment"] == "positive"]["Comment"].tolist()
                                         positive_wordcloud = create_wordcloud(positive_comments, color="#4CAF50")
-                                        st.image(positive_wordcloud)
+                                        if positive_wordcloud is not None:
+                                            st.image(positive_wordcloud)
                                     else:
                                         st.info("No positive comments to generate word cloud.")
                                 
@@ -215,7 +216,8 @@ with main_container:
                                     if neutral_count > 0:
                                         neutral_comments = comments_df[comments_df["Sentiment"] == "neutral"]["Comment"].tolist()
                                         neutral_wordcloud = create_wordcloud(neutral_comments, color="#FFC107")
-                                        st.image(neutral_wordcloud)
+                                        if neutral_wordcloud is not None:
+                                            st.image(neutral_wordcloud)
                                     else:
                                         st.info("No neutral comments to generate word cloud.")
                                 
@@ -224,7 +226,8 @@ with main_container:
                                     if negative_count > 0:
                                         negative_comments = comments_df[comments_df["Sentiment"] == "negative"]["Comment"].tolist()
                                         negative_wordcloud = create_wordcloud(negative_comments, color="#F44336")
-                                        st.image(negative_wordcloud)
+                                        if negative_wordcloud is not None:
+                                            st.image(negative_wordcloud)
                                     else:
                                         st.info("No negative comments to generate word cloud.")
                             else:
@@ -244,7 +247,7 @@ with main_container:
         try:
             response = requests.get("https://pixabay.com/get/gbf126442622b72367ca0e59feed73acd2e0e317da61bade5e24674e287f8ac034d3aa4429dcd087e5a43373f040a1c79d47a330538f7c91d0fa0ae677b25f535_1280.jpg")
             img = Image.open(BytesIO(response.content))
-            st.image(img, caption="Sentiment Analysis Dashboard Example", use_column_width=True)
+            st.image(img, caption="Sentiment Analysis Dashboard Example", use_container_width=True)
         except Exception as e:
             pass
 

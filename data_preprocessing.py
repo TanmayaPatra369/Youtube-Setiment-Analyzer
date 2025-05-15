@@ -12,15 +12,26 @@ for resource in ['punkt', 'stopwords', 'wordnet']:
     except Exception as e:
         print(f"Error downloading NLTK resource {resource}: {e}")
 
-# Ensure tokenizer is properly loaded
-try:
-    # Explicitly initialize the tokenizer
-    tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-except Exception as e:
-    print(f"Error loading tokenizer: {e}")
-    # Fallback to simple tokenization if NLTK resources fail
-    def simple_tokenize(text):
-        return text.split()
+# Define a simple tokenizer function for fallback
+def simple_tokenize(text):
+    """Split text on whitespace and punctuation"""
+    if not isinstance(text, str):
+        return []
+    # Basic cleaning
+    text = text.lower()
+    # Split on whitespace and remove empty strings
+    return [token for token in re.split(r'[^\w]', text) if token]
+
+# Try to use NLTK's tokenizer, but don't rely on it
+def safe_word_tokenize(text):
+    """Safely tokenize text with fallback to simple tokenizer"""
+    if not isinstance(text, str):
+        return []
+    try:
+        return word_tokenize(text)
+    except Exception as e:
+        print(f"Falling back to simple tokenizer: {e}")
+        return simple_tokenize(text)
 
 def clean_text(text):
     """
@@ -60,13 +71,30 @@ def remove_stopwords(text):
     str: Text with stopwords removed
     """
     try:
-        stop_words = set(stopwords.words('english'))
-        # Use word_tokenize with try/except to handle possible errors
+        # Try to get stopwords, with fallback
         try:
-            tokens = word_tokenize(text)
+            stop_words = set(stopwords.words('english'))
         except:
-            # Use fallback tokenizer if nltk tokenizer fails
-            tokens = simple_tokenize(text)
+            # Common English stopwords as fallback
+            stop_words = {'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 
+                         'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 
+                         'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 
+                         'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 
+                         'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 
+                         'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 
+                         'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 
+                         'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 
+                         'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 
+                         'through', 'during', 'before', 'after', 'above', 'below', 'to', 
+                         'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 
+                         'again', 'further', 'then', 'once', 'here', 'there', 'when', 
+                         'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 
+                         'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 
+                         'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 
+                         'just', 'don', 'should', 'now'}
+
+        # Use safe tokenization to handle errors
+        tokens = safe_word_tokenize(text)
         filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
         return ' '.join(filtered_tokens)
     except Exception as e:
@@ -84,14 +112,17 @@ def lemmatize_text(text):
     str: Lemmatized text
     """
     try:
-        lemmatizer = WordNetLemmatizer()
-        # Use word_tokenize with try/except to handle possible errors
+        # Use safe tokenization
+        tokens = safe_word_tokenize(text)
+        
+        # Try to lemmatize with WordNetLemmatizer
         try:
-            tokens = word_tokenize(text)
-        except:
-            # Use fallback tokenizer if nltk tokenizer fails
-            tokens = simple_tokenize(text)
-        lemmatized_tokens = [lemmatizer.lemmatize(word) for word in tokens]
+            lemmatizer = WordNetLemmatizer()
+            lemmatized_tokens = [lemmatizer.lemmatize(word) for word in tokens]
+        except Exception as e:
+            print(f"Lemmatization failed, using original tokens: {e}")
+            lemmatized_tokens = tokens
+            
         return ' '.join(lemmatized_tokens)
     except Exception as e:
         print(f"Error lemmatizing text: {e}")
