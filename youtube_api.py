@@ -41,7 +41,7 @@ def get_video_comments(video_id, max_comments=200):
     """
     try:
         # Get API key from environment variable
-        api_key = os.getenv("YOUTUBE_API_KEY", "")
+        api_key = os.getenv("YOUTUBE_API_KEY", "AIzaSyDq0s_FcHnLJbW8skr-nU4BEg4fbsTzmuo")
         
         if not api_key:
             # Instead of using a mock API, we'll use a sample dataset if API key is not available
