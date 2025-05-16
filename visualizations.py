@@ -9,10 +9,10 @@ from PIL import Image
 def create_sentiment_pie_chart(sentiment_counts):
     """
     Create a pie chart for sentiment distribution.
-    
+
     Parameters:
     sentiment_counts (DataFrame): DataFrame with sentiment counts
-    
+
     Returns:
     Figure: Plotly pie chart figure
     """
@@ -22,10 +22,10 @@ def create_sentiment_pie_chart(sentiment_counts):
         'neutral': '#FFC107',   # Amber
         'negative': '#F44336'   # Red
     }
-    
+
     # Create color list based on sentiments
     color_list = [colors.get(sentiment, '#7b2cbf') for sentiment in sentiment_counts['Sentiment']]
-    
+
     # Create pie chart
     fig = px.pie(
         sentiment_counts, 
@@ -39,7 +39,7 @@ def create_sentiment_pie_chart(sentiment_counts):
         },
         title='Sentiment Distribution'
     )
-    
+
     # Update layout
     fig.update_layout(
         font=dict(family="Roboto, Open Sans, sans-serif"),
@@ -47,23 +47,23 @@ def create_sentiment_pie_chart(sentiment_counts):
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)'
     )
-    
+
     # Update traces
     fig.update_traces(
         textinfo='percent+label',
         pull=[0.05, 0, 0],
         marker=dict(line=dict(color='#ffffff', width=1))
     )
-    
+
     return fig
 
 def create_sentiment_bar_chart(sentiment_counts):
     """
     Create a bar chart for sentiment distribution.
-    
+
     Parameters:
     sentiment_counts (DataFrame): DataFrame with sentiment counts
-    
+
     Returns:
     Figure: Plotly bar chart figure
     """
@@ -73,10 +73,10 @@ def create_sentiment_bar_chart(sentiment_counts):
         'neutral': '#FFC107',   # Amber
         'negative': '#F44336'   # Red
     }
-    
+
     # Create color list based on sentiments
     color_list = [colors.get(sentiment, '#7b2cbf') for sentiment in sentiment_counts['Sentiment']]
-    
+
     # Create bar chart
     fig = px.bar(
         sentiment_counts, 
@@ -90,7 +90,7 @@ def create_sentiment_bar_chart(sentiment_counts):
         },
         title='Sentiment Counts'
     )
-    
+
     # Update layout
     fig.update_layout(
         font=dict(family="Roboto, Open Sans, sans-serif"),
@@ -99,19 +99,19 @@ def create_sentiment_bar_chart(sentiment_counts):
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)'
     )
-    
+
     return fig
 
 def create_wordcloud(texts, color='white', width=400, height=200):
     """
     Create a word cloud from a list of texts.
-    
+
     Parameters:
     texts (list): List of text samples
     color (str): Color map for the word cloud
     width (int): Width of the image
     height (int): Height of the image
-    
+
     Returns:
     BytesIO or None: Image of the word cloud or None if texts is empty
     """
@@ -120,15 +120,15 @@ def create_wordcloud(texts, color='white', width=400, height=200):
         if not texts:
             print("No texts provided for wordcloud")
             return None
-            
+
         # Filter out non-string or empty texts
         valid_texts = [t for t in texts if isinstance(t, str) and t.strip()]
         if not valid_texts:
             print("No valid texts for wordcloud")
             return None
-            
+
         text = ' '.join(valid_texts)
-        
+
         # Create WordCloud object
         wc = WordCloud(
             width=width, 
@@ -139,28 +139,28 @@ def create_wordcloud(texts, color='white', width=400, height=200):
             contour_width=1,
             contour_color='black'
         )
-        
+
         # Generate word cloud
         wc.generate(text)
-        
+
         # Plot the word cloud
         plt.figure(figsize=(width/100, height/100), dpi=100)
         plt.imshow(wc, interpolation='bilinear')
         plt.axis('off')
-        
+
         # Save to BytesIO
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
         buf.seek(0)
         plt.close()
-        
+
         # Ensure non-None return value
         if buf.getbuffer().nbytes > 0:
             return buf
         else:
             print("Generated an empty wordcloud buffer")
             return None
-            
+
     except Exception as e:
         print(f"Error creating wordcloud: {e}")
         return None
@@ -168,10 +168,10 @@ def create_wordcloud(texts, color='white', width=400, height=200):
 def create_sentiment_trend_chart(sentiment_data):
     """
     Create a line chart showing sentiment trends over time.
-    
+
     Parameters:
     sentiment_data (DataFrame): DataFrame with sentiment data over time
-    
+
     Returns:
     Figure: Plotly line chart figure
     """
@@ -183,7 +183,7 @@ def create_sentiment_trend_chart(sentiment_data):
         title='Sentiment Trend Over Time',
         labels={'timestamp': 'Time', 'value': 'Count'}
     )
-    
+
     # Update layout
     fig.update_layout(
         font=dict(family="Roboto, Open Sans, sans-serif"),
@@ -193,24 +193,24 @@ def create_sentiment_trend_chart(sentiment_data):
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)'
     )
-    
+
     # Update line colors
     fig.update_traces(
         line=dict(width=2),
         selector=dict(name='positive'),
         line_color='#4CAF50'
     )
-    
+
     fig.update_traces(
         line=dict(width=2),
         selector=dict(name='neutral'),
         line_color='#FFC107'
     )
-    
+
     fig.update_traces(
         line=dict(width=2),
         selector=dict(name='negative'),
         line_color='#F44336'
     )
-    
+
     return fig
