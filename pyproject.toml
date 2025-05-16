@@ -2,7 +2,7 @@
 name = "repl-nix-workspace"
 version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.11"
+requires-python = ">=3.10,<3.11"
 dependencies = [
     "google-api-python-client>=2.169.0",
     "matplotlib>=3.10.3",
@@ -13,6 +13,6 @@ dependencies = [
     "plotly>=6.1.0",
     "requests>=2.32.3",
     "streamlit>=1.45.1",
-    "tensorflow>=2.14.0",
+    "tensorflow>=2.10.0",
     "wordcloud>=1.9.4",
 ]
